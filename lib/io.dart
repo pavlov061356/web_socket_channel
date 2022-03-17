@@ -55,6 +55,8 @@ class IOWebSocketChannel extends StreamChannelMixin
   /// [pingInterval]. It defaults to `null`, indicating that ping messages are
   /// disabled.
   ///
+  /// [httpClient] could be used for testing to apply self-signed certificates.
+  ///
   /// If there's an error connecting, the channel's stream emits a
   /// [WebSocketChannelException] wrapping that error and then closes.
   factory IOWebSocketChannel.connect(
@@ -62,11 +64,13 @@ class IOWebSocketChannel extends StreamChannelMixin
     Iterable<String>? protocols,
     Map<String, dynamic>? headers,
     Duration? pingInterval,
+    HttpClient? httpClient,
   }) {
     late IOWebSocketChannel channel;
     final sinkCompleter = WebSocketSinkCompleter();
     final stream = StreamCompleter.fromFuture(
-      WebSocket.connect(url.toString(), headers: headers, protocols: protocols)
+      WebSocket.connect(url.toString(),
+              headers: headers, protocols: protocols, customClient: httpClient)
           .then((webSocket) {
         webSocket.pingInterval = pingInterval;
         channel._webSocket = webSocket;
